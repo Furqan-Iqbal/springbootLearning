@@ -3,7 +3,7 @@ pipeline {
   
   }
   environment {
-    rancher-jekens-key = credentials('rancher-jekens-key')
+    Rancher_Jekens_key = credentials('rancher-jekens-key')
   }
   stages {
     stage('Build') {
