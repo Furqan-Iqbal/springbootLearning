@@ -1,53 +1,43 @@
 pipeline {
+  agent { label 'linux' }
   
-  agent any
-  
-  tools {
-    maven 'Maven'
-    
-    parameters {
-      choice(name: 'VERSION', choices: ['1.1.0', '1.2.0'], description: '')
-      booleanParam(name: 'executeTests', defaultValue: true, description: '') 
-    
-  
+  }
   environment {
-    SERVER_CREDENTIALS = credentials ('da0b8891-c80c-4073-91b9-d91fb46849d2')
-  }  
-  
+    rancher-jekens-key = credentials('rancher-jekens-key')
+  }
+  parameters { 
+    string(name: 'APP_NAME', defaultValue: '', description: 'What is the Heroku app name?') 
+  }
   stages {
-    
-    stage("build") {
-      
+    stage('Build') {
       steps {
-        echo 'building the application...'
-        echo 'changed now'
+        sh 'docker build -t registry.hiqs.de/java-web-app:latest .'
       }
     }
-    
-    stage("test") {
-      when {
-        expression {
-          params.executeTests
-        }
-      }
+    stage('Login') {
       steps {
-        echo 'testing the application....'
+        sh 'echo $registry.hiqs.de | docker login --username=furqan.iqbal --password=Haiderali@313 registry.hiqs.de'
       }
     }
-    stage("deploy"){
-      
+    stage('Push to Heroku registry') {
       steps {
-        echo 'deploying the application....'
-        echo "deploying version ${params.VERSION}"
-        echo "deploying with ${SERVER_CREDENTIALS}"
-        sh "${SERVER_CREDENTIALS}"
-        withCredentials([
-          usernamePassword( credentials: 'da0b8891-c80c-4073-91b9-d91fb46849d2', usernameVariable: USER, passwordVariable: PWD)
-          )]
-                        { 
-                          sh "some script ${USER} ${PWD} "  
-                        }
+        sh '''
+          docker tag registry.hiqs.de/java-web-app:latest registry.hiqs.de/$APP_NAME/web
+          docker push registry.hiqs.de/$APP_NAME/web
+        '''
       }
+    }
+    stage('Release the image') {
+      steps {
+        sh '''
+          heroku container:release web --app=$APP_NAME
+        '''
+      }
+    }
+  }
+  post {
+    always {
+      sh 'docker logout'
     }
   }
 }
