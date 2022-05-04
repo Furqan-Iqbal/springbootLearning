@@ -1,8 +1,5 @@
 pipeline {
-  agent 
-  { 
-  any
-  }
+  agent any
   environment {
     Rancher_Jekens_key = credentials('rancher-jekens-key')
   }
