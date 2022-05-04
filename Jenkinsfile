@@ -1,37 +1,25 @@
 pipeline {
-  agent any
   environment {
-    Rancher_Jekens_key = credentials('rancher-jekens-key')
+    Rancher_Jekens_key = "-Duser.home=/home/jenkins"
   }
-    
+  agent any {
+    dockerfile {
+      lable "docker"
+      args "-v /tmp/maven:/home/jenkins/.m2 -e MAVEN_CONFIG=/home/jenkins/.m2"
+    }
+  }
+  stages {
     stage('Build') {
       steps {
-        sh 'docker build -t registry.hiqs.de/java-web-app:latest .'
-      }
-    }
-    stage('Login') {
-      steps {
-        sh 'echo $registry.hiqs.de | docker login --username=furqan.iqbal --password=Haiderali@313 registry.hiqs.de'
-      }
-    }
-    stage('Push to Heroku registry') {
-      steps {
-        sh '''
-          docker tag registry.hiqs.de/java-web-app:latest registry.hiqs.de/$APP_NAME/web
-          docker push registry.hiqs.de/$APP_NAME/web
-        '''
-      }
-    }
-    stage('Release the image') {
-      steps {
-        sh '''
-          heroku container:release web --app=$APP_NAME
-        '''
+        sh "ssh -V"
+        sh "mvn -version"
+        sh "mvn clean install"
       }
     }
   }
   post {
     always {
-      sh 'docker logout'
+      cleanWs()
     }
   }
+}
