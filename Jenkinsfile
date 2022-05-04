@@ -1,25 +1,29 @@
+#!groovy
+
 pipeline {
-  environment {
-    Rancher_Jekens_key = "-Duser.home=/home/jenkins"
-  }
-  agent {
-    dockerfile {
-      label "docker"
-      args "-v /tmp/maven:/home/jenkins/.m2 -e MAVEN_CONFIG=/home/jenkins/.m2"
+    environment {
+        JAVA_TOOL_OPTIONS = "-Duser.home=/home/jenkins"
     }
-  }
-  stages {
-    stage('Build') {
-      steps {
-        sh "ssh -V"
-        sh "mvn -version"
-        sh "mvn clean install"
-      }
+    agent {
+        dockerfile {
+            label "docker"
+            args "-v /tmp/maven:/home/jenkins/.m2 -e MAVEN_CONFIG=/home/jenkins/.m2"
+        }
     }
-  }
-  post {
-    always {
-      cleanWs()
+
+    stages {
+        stage("Build") {
+            steps {
+                sh "ssh -V"
+                sh "mvn -version"
+                sh "mvn clean install"
+            }
+        }
     }
-  }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
 }
