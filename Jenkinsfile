@@ -5,9 +5,6 @@ pipeline {
   environment {
     rancher-jekens-key = credentials('rancher-jekens-key')
   }
-  parameters { 
-    string(name: 'APP_NAME', defaultValue: '', description: 'What is the Heroku app name?') 
-  }
   stages {
     stage('Build') {
       steps {
