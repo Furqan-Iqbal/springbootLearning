@@ -8,6 +8,7 @@ public class SpringbootLearningApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(SpringbootLearningApplication.class, args);
+        System.out.println("congrates you deployed");
     }
 
 }
