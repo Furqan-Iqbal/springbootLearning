@@ -3,11 +3,6 @@ pipeline {
   environment {
     Rancher_Jekens_key = credentials('rancher-jekens-key')
   }
-  stages {
-    stage('Initialize'){
-        def dockerHome = tool 'my Docker'
-        env.PATH = "${dockerHome}/bin:${env.PATH}"
-    }
     
     stage('Build') {
       steps {
